@@ -61,18 +61,33 @@ export const login = async (req, res) => {
       req.ip
     );
 
+    const formattedRole = (user.role === 'SuperAdmin' || user.role === 'admin') ? 'Super Admin' : user.role;
+    const permissions = [
+      'can_bill',
+      'can_manage_inventory',
+      'can_view_reports',
+      'can_manage_employees',
+      'can_manage_accounts',
+      'can_manage_branches',
+    ];
+
+    const profileData = {
+      id: user._id,
+      uid: user._id,
+      name: user.name,
+      email: user.email,
+      role: formattedRole,
+      branchId: user.branch_id ? (user.branch_id._id || user.branch_id) : 'main-branch',
+      branchName: user.branch_id ? (user.branch_id.name || 'Main Branch') : 'Main Branch',
+      permissions
+    };
+
     return res.json({
       success: true,
       message: 'Authentication successful.',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        branchId: user.branch_id ? user.branch_id._id : null,
-        branchName: user.branch_id ? user.branch_id.name : null
-      }
+      user: profileData,
+      userProfile: profileData
     });
 
   } catch (error) {

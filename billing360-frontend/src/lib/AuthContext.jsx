@@ -184,7 +184,21 @@ export function FirebaseProvider({ children }) {
       });
 
       if (response.data && response.data.success) {
-        const { token, userProfile: finalProfile } = response.data;
+        const token = response.data.token;
+        const rawProfile = response.data.userProfile || response.data.user || {};
+        const finalProfile = {
+          ...rawProfile,
+          role: (rawProfile.role === 'SuperAdmin' || rawProfile.role === 'admin') ? 'Super Admin' : rawProfile.role,
+          permissions: rawProfile.permissions || [
+            'can_bill',
+            'can_manage_inventory',
+            'can_view_reports',
+            'can_manage_employees',
+            'can_manage_accounts',
+            'can_manage_branches',
+          ]
+        };
+
         localStorage.setItem('auth_token', token);
         localStorage.setItem('auth_session', JSON.stringify(finalProfile));
         localStorage.setItem('employee_session', JSON.stringify(finalProfile));
