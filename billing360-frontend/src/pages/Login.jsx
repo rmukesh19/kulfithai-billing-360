@@ -43,6 +43,7 @@ export default function Login() {
     
     try {
       await login(cleanEmail, password);
+      window.location.href = '/';
     } catch (err) {
       console.error("Auth error:", err);
       setError(err.message || "An error occurred during authentication.");
@@ -58,6 +59,7 @@ export default function Login() {
     setError('');
     try {
       await employeeLogin(cleanUsername, password);
+      window.location.href = '/';
     } catch (err) {
       setError(err.message || "Invalid staff credentials");
     } finally {
