@@ -1,0 +1,6 @@
+{
+  "name": "Billing360 Admin Panel",
+  "description": "A comprehensive cloud-based SaaS ERP for billing, inventory, GST, and business management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

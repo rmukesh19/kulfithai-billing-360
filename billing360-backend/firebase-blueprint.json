@@ -1,0 +1,233 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Information about the application user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The unique ID of the user." },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "staff"] },
+        "branchId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "An item in the inventory.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sku": { "type": "string" },
+        "barcode": { "type": "string" },
+        "hsn": { "type": "string" },
+        "gstPercent": { "type": "number" },
+        "purchasePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "mrp": { "type": "number" },
+        "wholesalePrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "category": { "type": "string" },
+        "brand": { "type": "string" },
+        "size": { "type": "string" },
+        "color": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "batchNumber": { "type": "string" },
+        "branchId": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "sku", "sellingPrice", "stock", "branchId"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "A sales transaction.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "name": { "type": "string" },
+              "qty": { "type": "number" },
+              "price": { "type": "number" },
+              "gst": { "type": "number" },
+              "total": { "type": "number" }
+            }
+          }
+        },
+        "subtotal": { "type": "number" },
+        "totalTax": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMode": { "type": "string", "enum": ["cash", "upi", "card", "credit"] },
+        "status": { "type": "string", "enum": ["paid", "pending", "refunded"] },
+        "branchId": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invoiceNumber", "items", "totalAmount", "status", "branchId"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "A client information.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "gstIn": { "type": "string" },
+        "branchId": { "type": "string" },
+        "balance": { "type": "number" },
+        "loyaltyPoints": { "type": "number" }
+      },
+      "required": ["name", "phone", "branchId"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Information about a supplier.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "gstIn": { "type": "string" },
+        "category": { "type": "string" },
+        "branchId": { "type": "string" },
+        "balance": { "type": "number" }
+      },
+      "required": ["name", "phone", "branchId", "balance"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "A purchase transaction from a supplier.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "purchaseNumber": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "totalTax": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMode": { "type": "string", "enum": ["cash", "upi", "card", "credit"] },
+        "status": { "type": "string", "enum": ["paid", "unpaid", "partial"] },
+        "branchId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["purchaseNumber", "supplierId", "items", "totalAmount", "status", "branchId"]
+    },
+    "Voucher": {
+      "title": "Voucher",
+      "description": "An accounting transaction.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["receipt", "payment", "journal", "contra"] },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "entityId": { "type": "string" },
+        "entityType": { "type": "string", "enum": ["customer", "supplier", "expense", "other"] },
+        "date": { "type": "string", "format": "date-time" },
+        "branchId": { "type": "string" }
+      },
+      "required": ["type", "amount", "description", "branchId", "date"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product categories.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "branchId": { "type": "string" }
+      },
+      "required": ["name", "branchId"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "A staff member of a branch.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "absent"] },
+        "salary": { "type": "number" },
+        "branchId": { "type": "string" }
+      },
+      "required": ["name", "role", "phone", "branchId"]
+    },
+    "BusinessConfig": {
+      "title": "Business Configuration",
+      "description": "Settings and profile for a branch.",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string" },
+        "gstIn": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "invoicePrefix": { "type": "string" },
+        "currency": { "type": "string" }
+      },
+      "required": ["companyName", "invoicePrefix"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Global user profiles."
+    },
+    "branches/{branchId}/products/{productId}": {
+      "schema": "Product",
+      "description": "Products separated by branch."
+    },
+    "branches/{branchId}/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Invoices separated by branch."
+    },
+    "branches/{branchId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customers separated by branch."
+    },
+    "branches/{branchId}/suppliers/{supplierId}": {
+      "schema": "Supplier",
+      "description": "Suppliers separated by branch."
+    },
+    "branches/{branchId}/purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "Purchases separated by branch."
+    },
+    "branches/{branchId}/vouchers/{voucherId}": {
+      "schema": "Voucher",
+      "description": "Vouchers (accounting entries) separated by branch."
+    },
+    "branches/{branchId}/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Employees separated by branch."
+    },
+    "branches/{branchId}/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Product categories separated by branch."
+    },
+    "branches/{branchId}/settings/config": {
+      "schema": "BusinessConfig",
+      "description": "Configuration settings for the branch."
+    }
+  }
+}

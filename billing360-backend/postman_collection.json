@@ -1,0 +1,190 @@
+{
+  "info": {
+    "_postman_id": "88eaddd9-5b94-42c1-a1da-f3e8bf3e10ab",
+    "name": "Billing360 Enterprise API Suite",
+    "description": "Production-ready Postman collection for testing the modular GST-Billing, Inventory, and RBAC endpoint suites.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication Module",
+      "item": [
+        {
+          "name": "User JWT Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@billing360.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/auth/login",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register Employee Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branchId\": \"b360-branch-head\",\n  \"name\": \"Rajesh Kumar\",\n  \"email\": \"rajesh.k@billing360.com\",\n  \"password\": \"rajesh@secure7\",\n  \"role\": \"Cashier\"\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/auth/register",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing Module",
+      "item": [
+        {
+          "name": "Create Tax Invoice (POS Checkout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"cust-corp\",\n  \"paymentMode\": \"upi\",\n  \"paidAmount\": 141800,\n  \"billingDate\": \"2026-05-26\",\n  \"items\": [\n    {\n      \"productId\": \"prod-iphone\",\n      \"quantity\": 1,\n      \"price\": 120000,\n      \"cgstPercent\": 9,\n      \"sgstPercent\": 9,\n      \"igstPercent\": 0\n    },\n    {\n      \"productId\": \"prod-charger\",\n      \"quantity\": 1,\n      \"price\": 1800,\n      \"cgstPercent\": 9,\n      \"sgstPercent\": 9,\n      \"igstPercent\": 0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/billing/create",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "billing", "create"]
+            }
+          }
+        },
+        {
+          "name": "List Paginated Invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/billing/list?page=1&limit=10&status=paid",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "billing", "list"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "paid" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GST Reports",
+      "item": [
+        {
+          "name": "Download GSTR-1 Outward Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/gst/gstr1?startDate=2026-04-01&endDate=2026-06-30",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "gst", "gstr1"],
+              "query": [
+                { "key": "startDate", "value": "2026-04-01" },
+                { "key": "endDate", "value": "2026-06-30" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "HSN Code Aggregate Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/gst/hsn-summary",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "gst", "hsn-summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory Module",
+      "item": [
+        {
+          "name": "Adjust Physical Stock Qty",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"prod-charger\",\n  \"adjustmentQty\": 20,\n  \"reason\": \"Bulk replenishment warehouse entry\"\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/inventory/adjust",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "inventory", "adjust"]
+            }
+          }
+        },
+        {
+          "name": "Initiate Hub-Branch Stock Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"prod-charger\",\n  \"targetBranchId\": \"b360-branch-secondary\",\n  \"transferQty\": 10\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/api/inventory/transfer",
+              "protocol": "http",
+              "host": ["127", "0", "0", "1"],
+              "port": "5000",
+              "path": ["api", "inventory", "transfer"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
