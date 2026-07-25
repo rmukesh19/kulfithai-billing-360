@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../lib/AuthContext';
+import { isSuperAdminRole } from '../../lib/utils';
 
 // Protected Route - Safeguards standard views and redirects unauthenticated users to '/login'
 export function ProtectedRoute({ children }) {
@@ -45,8 +46,8 @@ export function AdminRoute({ children, requiredPermission }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Super Admin bypasses all checks
-  if (userProfile.role === 'Super Admin') {
+  // Super Admin / Owner bypasses all checks
+  if (isSuperAdminRole(userProfile?.role)) {
     return children;
   }
 

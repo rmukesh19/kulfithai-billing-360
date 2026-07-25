@@ -63,7 +63,7 @@ router.post("/login", (req, res) => {
       permissions: clientProfile?.permissions || ["can_bill"]
     };
   }
-  const token = import_jsonwebtoken.default.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+  const token = import_jsonwebtoken.default.sign(payload, JWT_SECRET, { expiresIn: "24h" });
   return res.json({
     success: true,
     token,

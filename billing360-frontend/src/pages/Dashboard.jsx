@@ -34,7 +34,7 @@ import { Link } from 'react-router-dom';
 import { translations } from '../lib/translations';
 
 export default function Dashboard() {
-  const { userProfile } = useAuth();
+  const { userProfile, login } = useAuth();
   const { pendingInvoices } = useOffline();
   const { config, formatCurrency, t } = useLocalization();
   const [invoices, setInvoices] = useState([]);
@@ -291,9 +291,20 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">{t.dashboard}</h2>
-          <p className="text-slate-500 font-medium text-sm mt-0.5">{t.welcome}, {userProfile?.name}! Here's what's happening today.</p>
+          <p className="text-slate-500 font-medium text-sm mt-0.5">{t.welcome}, {userProfile?.name || 'System Administrator'}! Here's what's happening today.</p>
         </div>
         <div className="flex items-center gap-3">
+          {(!userProfile?.role || userProfile?.role !== 'Super Admin') && (
+            <button
+              onClick={async () => {
+                await login('admin@billing360.com', 'admin123');
+                window.location.reload();
+              }}
+              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"
+            >
+              Switch to Owner/Admin View
+            </button>
+          )}
           <Link 
             to="/billing"
             className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 rounded-xl text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20"

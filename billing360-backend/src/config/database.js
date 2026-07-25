@@ -5,7 +5,11 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/billing360_db');
+    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/billing360_db';
+    const conn = await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      family: 4
+    });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`[Database Error] MongoDB Connection failed: ${error.message}`);

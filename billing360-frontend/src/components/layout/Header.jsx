@@ -6,7 +6,7 @@ import { useOffline } from '../../lib/OfflineContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BranchService } from '../../services/dataService';
 import { db } from '../../lib/firebase';
-import { cn } from '../../lib/utils';
+import { cn, isSuperAdminRole } from '../../lib/utils';
 
 export default function Header({ onMenuClick }) {
   const { user, userProfile } = useAuth();
@@ -58,7 +58,7 @@ export default function Header({ onMenuClick }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-6">
-        {userProfile?.role === 'Super Admin' && (
+        {isSuperAdminRole(userProfile?.role) && (
           <div 
             onClick={() => setShowBranchSelector(!showBranchSelector)}
             className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer hover:bg-blue-100 transition-colors relative"
@@ -169,14 +169,14 @@ export default function Header({ onMenuClick }) {
 
         <button className="flex items-center gap-3 p-1 pl-1 pr-3 hover:bg-slate-50 rounded-full transition-colors group">
           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm border border-blue-200">
-            {userProfile?.name?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
+            {(userProfile?.name || user?.displayName || 'System Administrator').charAt(0)}
           </div>
           <div className="text-left hidden sm:block">
             <p className="text-sm font-semibold text-slate-900 leading-tight">
-              {userProfile?.name || user?.displayName || 'User'}
+              {userProfile?.name || user?.displayName || 'System Administrator'}
             </p>
-            <p className="text-[10px] text-slate-500 uppercase tracking-tighter">
-              {userProfile?.role || 'Guest'}
+            <p className="text-[10px] text-slate-500 uppercase tracking-tighter font-bold text-blue-600">
+              {userProfile?.role || 'Super Admin'}
             </p>
           </div>
           <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />

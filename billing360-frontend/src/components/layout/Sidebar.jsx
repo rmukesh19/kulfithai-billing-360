@@ -29,7 +29,7 @@ import {
   IndianRupee
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { cn } from '../../lib/utils';
+import { cn, isSuperAdminRole } from '../../lib/utils';
 import { useAuth } from '../../lib/AuthContext';
 import { SettingsService } from '../../services/dataService';
 import { translations } from '../../lib/translations';
@@ -161,7 +161,7 @@ export default function Sidebar({ isOpen, onClose }) {
   ];
 
   const filteredItems = menuItems.filter(item => {
-    if (userProfile?.role === 'Super Admin') return true;
+    if (isSuperAdminRole(userProfile?.role)) return true;
     if (item.permission === 'always') return true;
     return userProfile?.permissions?.includes(item.permission);
   });
@@ -262,8 +262,8 @@ export default function Sidebar({ isOpen, onClose }) {
             <UserCheck size={16} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{userProfile?.role || 'Staff'}</p>
-            <p className="text-xs font-bold text-slate-900 truncate">{userProfile?.name}</p>
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest truncate">{userProfile?.role || 'Super Admin'}</p>
+            <p className="text-xs font-bold text-slate-900 truncate">{userProfile?.name || 'System Administrator'}</p>
           </div>
         </div>
         <button 

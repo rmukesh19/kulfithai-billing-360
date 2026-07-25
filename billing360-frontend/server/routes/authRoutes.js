@@ -38,8 +38,8 @@ router.post('/login', (req, res) => {
     };
   }
 
-  // Generate JWT token with 1 hour expiration
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+  // Generate JWT token with 24 hour expiration
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 
   return res.json({
     success: true,
