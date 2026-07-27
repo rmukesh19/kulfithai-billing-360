@@ -99,7 +99,7 @@ export function FirebaseProvider({ children }) {
               name: parsedProfile.name || 'System Administrator',
               email: parsedProfile.email || 'admin@billing360.com',
               role: 'Super Admin',
-              branchId: parsedProfile.branchId || 'main-branch',
+              branchId: 'b360-branch-head',
               permissions: [
                 'can_bill',
                 'can_manage_inventory',
@@ -144,7 +144,7 @@ export function FirebaseProvider({ children }) {
             name: 'System Administrator',
             email: 'admin@billing360.com',
             role: 'Super Admin',
-            branchId: 'main-branch',
+            branchId: 'b360-branch-head',
             permissions: [
               'can_bill',
               'can_manage_inventory',
@@ -214,7 +214,7 @@ export function FirebaseProvider({ children }) {
           name: 'Administrator',
           email: u.email,
           role: 'Super Admin',
-          branchId: 'main-branch',
+          branchId: 'b360-branch-head',
           permissions: [
             'can_bill',
             'can_manage_inventory',
@@ -226,16 +226,6 @@ export function FirebaseProvider({ children }) {
           createdAt: serverTimestamp(),
         };
         db.set(userPath, profile);
-
-        if (!db.get('branches/main-branch')) {
-          db.set('branches/main-branch', {
-            id: 'main-branch',
-            name: 'Main Branch',
-            address: 'Corporate Office',
-            phone: '1234567890',
-            createdAt: serverTimestamp(),
-          });
-        }
       }
 
       let backendSuccess = false;
@@ -261,7 +251,7 @@ export function FirebaseProvider({ children }) {
           clientProfile: profile,
         });
 
-        if (response.data && response.data.success) {
+      if (response.data && response.data.success) {
           token = response.data.token;
           const rawProfile = response.data.userProfile || response.data.user || {};
           finalProfile = {
@@ -269,6 +259,7 @@ export function FirebaseProvider({ children }) {
             ...rawProfile,
             name: rawProfile.name || finalProfile.name || 'System Administrator',
             role: 'Super Admin',
+            branchId: 'b360-branch-head',
             permissions: (rawProfile.permissions && rawProfile.permissions.length > 0)
               ? rawProfile.permissions
               : finalProfile.permissions
