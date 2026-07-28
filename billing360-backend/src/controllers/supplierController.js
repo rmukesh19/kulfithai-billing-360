@@ -21,7 +21,7 @@ export const getSuppliers = async (req, res) => {
 export const addSupplier = async (req, res) => {
   const branchId = req.body.branchId || req.user?.branch_id || 'b360-branch-head';
   const userId = req.user?.id || 'b360-user-admin';
-  const { name, company_name, phone, email, address, city, state, gstin, gstIn, category, price, balance } = req.body;
+  const { name, company_name, phone, email, address, city, state, gstin, gstIn, balance } = req.body;
 
   if (!name || !phone) {
     return res.status(400).json({ success: false, message: 'Name and phone are required for supplier.' });
@@ -29,7 +29,6 @@ export const addSupplier = async (req, res) => {
 
   try {
     const supplier = new Supplier({
-      _id: req.body.id || undefined,
       branch_id: branchId,
       name,
       company_name: company_name || '',
@@ -39,9 +38,7 @@ export const addSupplier = async (req, res) => {
       city: city || '',
       state: state || '',
       gstin: gstin || gstIn || '',
-      category: category || '',
-      price: price || 0,
-      current_balance: balance || 0,
+      current_balance: balance !== undefined ? Number(balance) : 0,
       status: 'active'
     });
 
@@ -65,25 +62,23 @@ export const addSupplier = async (req, res) => {
 
 export const updateSupplier = async (req, res) => {
   const { id } = req.params;
-  const body = req.body;
+  const updateData = { ...req.body };
 
   try {
     const supplier = await Supplier.findById(id);
     if (!supplier) return res.status(404).json({ success: false, message: 'Supplier not found.' });
 
-    if (body.name !== undefined) supplier.name = body.name;
-    if (body.company_name !== undefined) supplier.company_name = body.company_name;
-    if (body.phone !== undefined) supplier.phone = body.phone;
-    if (body.email !== undefined) supplier.email = body.email;
-    if (body.address !== undefined) supplier.address = body.address;
-    if (body.city !== undefined) supplier.city = body.city;
-    if (body.state !== undefined) supplier.state = body.state;
-    if (body.gstin !== undefined) supplier.gstin = body.gstin;
-    if (body.gstIn !== undefined) supplier.gstin = body.gstIn;
-    if (body.category !== undefined) supplier.category = body.category;
-    if (body.price !== undefined) supplier.price = body.price;
-    if (body.balance !== undefined) supplier.current_balance = body.balance;
-    if (body.current_balance !== undefined) supplier.current_balance = body.current_balance;
+    if (updateData.balance !== undefined) supplier.current_balance = Number(updateData.balance);
+    if (updateData.current_balance !== undefined) supplier.current_balance = Number(updateData.current_balance);
+    if (updateData.gstIn !== undefined) supplier.gstin = updateData.gstIn;
+    if (updateData.gstin !== undefined) supplier.gstin = updateData.gstin;
+    if (updateData.name !== undefined) supplier.name = updateData.name;
+    if (updateData.company_name !== undefined) supplier.company_name = updateData.company_name;
+    if (updateData.phone !== undefined) supplier.phone = updateData.phone;
+    if (updateData.email !== undefined) supplier.email = updateData.email;
+    if (updateData.address !== undefined) supplier.address = updateData.address;
+    if (updateData.city !== undefined) supplier.city = updateData.city;
+    if (updateData.state !== undefined) supplier.state = updateData.state;
 
     await supplier.save();
 
@@ -107,10 +102,10 @@ export const deleteSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(id);
     if (supplier) {
-      supplier.status = 'deleted';
+      supplier.status = 'inactive';
       await supplier.save();
     }
-    return res.json({ success: true, message: 'Supplier deleted.' });
+    return res.json({ success: true, message: 'Supplier marked inactive.' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
