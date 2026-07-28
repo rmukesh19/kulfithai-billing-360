@@ -315,8 +315,8 @@ export default function Masters() {
     ) : null;
 
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
+      <div className="overflow-x-auto rounded-b-[2rem] w-full">
+        <table className="w-full text-left min-w-[640px]">
           <thead>
             <tr className="bg-slate-50/50 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
               {activeTab === 'category' && (
@@ -633,7 +633,7 @@ export default function Masters() {
         </button>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col w-full">
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-6 items-center justify-between bg-white">
           <div className="flex-1">
              <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 italic">
