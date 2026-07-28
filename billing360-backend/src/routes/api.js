@@ -7,9 +7,11 @@ import { getDashboardSummary } from '../controllers/dashboardController.js';
 import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, addCategory, deleteCategory } from '../controllers/productController.js';
 import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from '../controllers/customerController.js';
 import { getSuppliers, addSupplier, updateSupplier, deleteSupplier } from '../controllers/supplierController.js';
-import { getVouchers, addVoucher, getLedgers, addLedger } from '../controllers/voucherController.js';
+import { getVouchers, addVoucher, getLedgers, addLedger, updateLedger, deleteLedger } from '../controllers/voucherController.js';
 import { getEmployees, addEmployee, updateEmployee, deleteEmployee } from '../controllers/employeeController.js';
 import { getBranches, addBranch, updateBranch } from '../controllers/branchController.js';
+import { getPurchases, addPurchase, updatePurchase, deletePurchase } from '../controllers/purchaseController.js';
+import { getSettings, saveSettings } from '../controllers/settingsController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -55,6 +57,19 @@ router.get('/vouchers', getVouchers);
 router.post('/vouchers', addVoucher);
 router.get('/ledgers', getLedgers);
 router.post('/ledgers', addLedger);
+router.put('/ledgers/:id', updateLedger);
+router.delete('/ledgers/:id', deleteLedger);
+
+// Purchases
+router.get('/purchases', getPurchases);
+router.post('/purchases', addPurchase);
+router.put('/purchases/:id', updatePurchase);
+router.delete('/purchases/:id', deletePurchase);
+
+// Settings
+router.get('/settings', getSettings);
+router.post('/settings', saveSettings);
+router.put('/settings', saveSettings);
 
 // Employees
 router.get('/employees', getEmployees);

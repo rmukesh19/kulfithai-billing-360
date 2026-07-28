@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { Search, Plus, Download, Edit2, Trash2, Package, Tag, X, Eye, Barcode, Printer, RotateCcw } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +8,7 @@ import { useAuth } from '../lib/AuthContext';
 import { useDeleteToast } from '../lib/DeleteToastContext';
 import { translations } from '../lib/translations';
 import { useLocalization } from '../lib/LocalizationContext';
+
 
 export default function Inventory() {
   const { userProfile } = useAuth();
@@ -228,37 +230,36 @@ export default function Inventory() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (expDate < today) {
-          if (!window.confirm("The expiry date is in the past. Are you sure you want to add this product?")) {
+          if (!window.confirm('The expiry date is in the past. Are you sure you want to add this product?')) {
             setIsSubmitting(false);
             return;
           }
         }
       }
 
-      if (!finalProduct.id) {
-        finalProduct.id = generateNextId('PRD');
-      }
-
-      if (!finalProduct.sku) {
-        finalProduct.sku = generateNextSku();
-      }
-
+      if (!finalProduct.sku) finalProduct.sku = generateNextSku();
       if (!finalProduct.barcode) {
         const randomNum = Math.floor(10000000 + Math.random() * 90000000).toString();
-        const timestamp = Date.now().toString().slice(-4);
-        finalProduct.barcode = `8${randomNum}${timestamp}`;
+        finalProduct.barcode = `8${randomNum}${Date.now().toString().slice(-4)}`;
       }
 
       await ProductService.addProduct(userProfile.branchId, {
         ...finalProduct,
         branchId: userProfile.branchId
       });
+
       setShowAddModal(false);
       setNewProduct({
         id: '', name: '', sku: '', barcode: '', hsn: '', gstPercent: 18,
         purchasePrice: 0, sellingPrice: 0, mrp: 0, wholesalePrice: 0, stock: 0, unit: 'pcs',
         category: '', brand: '', image: '', batchNumber: '', expiryDate: '', size: '', color: '', serialNumbers: [], openingStock: 0
       });
+
+      // Refresh product list from API
+      const { data } = await axios.get(`/api/products?branchId=${userProfile.branchId}`);
+      if (data?.success) setProducts(data.data);
+    } catch (err) {
+      alert(`Failed to add product: ${err?.response?.data?.message || err?.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -275,7 +276,7 @@ export default function Inventory() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (expDate < today) {
-          if (!window.confirm("The expiry date is in the past. Are you sure you want to update this product?")) {
+          if (!window.confirm('The expiry date is in the past. Are you sure you want to update this product?')) {
             setIsSubmitting(false);
             return;
           }
@@ -284,6 +285,12 @@ export default function Inventory() {
       await ProductService.updateProduct(userProfile.branchId, editingProduct.id, editingProduct);
       setShowEditModal(false);
       setEditingProduct(null);
+
+      // Refresh product list from API
+      const { data } = await axios.get(`/api/products?branchId=${userProfile.branchId}`);
+      if (data?.success) setProducts(data.data);
+    } catch (err) {
+      alert(`Failed to update product: ${err?.response?.data?.message || err?.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -291,8 +298,15 @@ export default function Inventory() {
 
   const handleDeleteProduct = (id) => {
     if (!userProfile?.branchId || !id) return;
-    showConfirm('Product', 'Are you sure you want to delete this product? The item will be soft-deleted and hidden.', async () => {
-      await ProductService.deleteProduct(userProfile.branchId, id);
+    showConfirm('Product', 'Are you sure you want to delete this product?', async () => {
+      try {
+        await ProductService.deleteProduct(userProfile.branchId, id);
+        // Refresh list
+        const { data } = await axios.get(`/api/products?branchId=${userProfile.branchId}`);
+        if (data?.success) setProducts(data.data);
+      } catch (err) {
+        alert(`Failed to delete product: ${err?.response?.data?.message || err?.message}`);
+      }
     });
   };
 

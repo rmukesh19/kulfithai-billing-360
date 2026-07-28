@@ -87,3 +87,30 @@ export const addLedger = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const updateLedger = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const ledger = await Ledger.findById(id);
+    if (!ledger) return res.status(404).json({ success: false, message: 'Ledger not found.' });
+    const { name, group, currentBalance, openingBalance } = req.body;
+    if (name) ledger.narration = name;
+    if (group) ledger.party_type = group;
+    if (currentBalance !== undefined) ledger.debit = currentBalance > 0 ? currentBalance : 0;
+    if (openingBalance !== undefined) ledger.debit = openingBalance > 0 ? openingBalance : 0;
+    await ledger.save();
+    return res.json({ success: true, data: { id: ledger._id, ...ledger.toObject() } });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteLedger = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Ledger.findByIdAndDelete(id);
+    return res.json({ success: true, message: 'Ledger deleted.' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
