@@ -45,6 +45,7 @@ export default function Masters() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    setCurrentPage(1);
     setSearchParams({ tab });
   };
 
@@ -65,6 +66,8 @@ export default function Masters() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const searchInputRef = useRef(null);
 
   const generateNextMasterId = (tab) => {
@@ -267,7 +270,49 @@ export default function Masters() {
   const t = translations[config?.language || 'English'] || translations.English;
 
   const renderTabContent = () => {
-    const data = getFilteredData();
+    const allData = getFilteredData();
+    const totalItems = allData.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    const safePage = Math.min(currentPage, totalPages);
+    const pageStart = (safePage - 1) * itemsPerPage;
+    const data = allData.slice(pageStart, pageStart + itemsPerPage);
+
+    const PaginationBar = () => totalItems > itemsPerPage ? (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/40">
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span>Show</span>
+          <select
+            value={itemsPerPage}
+            onChange={e => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+            className="border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <span>of <strong>{totalItems}</strong> entries</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setCurrentPage(1)} disabled={safePage === 1}
+            className="px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:bg-slate-200 disabled:opacity-30 transition-all cursor-pointer">«</button>
+          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+            className="px-3 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200 disabled:opacity-30 transition-all cursor-pointer">‹ Prev</button>
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let page;
+            if (totalPages <= 5) page = i + 1;
+            else if (safePage <= 3) page = i + 1;
+            else if (safePage >= totalPages - 2) page = totalPages - 4 + i;
+            else page = safePage - 2 + i;
+            return (
+              <button key={page} onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${page === safePage ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-200'}`}>{page}</button>
+            );
+          })}
+          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+            className="px-3 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200 disabled:opacity-30 transition-all cursor-pointer">Next ›</button>
+          <button onClick={() => setCurrentPage(totalPages)} disabled={safePage === totalPages}
+            className="px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:bg-slate-200 disabled:opacity-30 transition-all cursor-pointer">»</button>
+        </div>
+      </div>
+    ) : null;
 
     return (
       <div className="overflow-x-auto">
@@ -285,7 +330,9 @@ export default function Masters() {
                 <>
                   <th className="px-6 py-4 italic text-xs tracking-normal font-black">{t.id}</th>
                   <th className="px-6 py-4">{activeTab === 'customer' ? t.customer_name : t.supplier_name}</th>
+                  <th className="px-6 py-4">City / Address</th>
                   <th className="px-6 py-4">{t.gst_number}</th>
+                  <th className="px-6 py-4 text-right">Credit Limit / Price</th>
                   <th className="px-6 py-4 text-right">{t.balance}</th>
                   <th className="px-6 py-4 text-center">{t.actions}</th>
                 </>
@@ -359,7 +406,11 @@ export default function Masters() {
                 )}
                 {(activeTab === 'customer' || activeTab === 'supplier') && (
                   <>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-400 font-bold">{item.id}</td>
+                    <td className="px-6 py-4 text-xs font-mono text-slate-500 font-bold">
+                      <span className="px-2 py-1 bg-slate-100 rounded-lg" title={item.id}>
+                        {item.id?.length > 12 ? `${activeTab === 'customer' ? 'CST' : 'SUP'}-${item.id.slice(0, 6)}...` : item.id}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
@@ -378,8 +429,13 @@ export default function Masters() {
                         </div>
                       </div>
                     </td>
+                    <td className="px-6 py-4">
+                      <p className="text-xs font-bold text-slate-800">{item.city || item.address || '-'}</p>
+                      {item.state && <p className="text-[10px] text-slate-400 font-medium">{item.state}</p>}
+                    </td>
                     <td className="px-6 py-4 text-sm font-mono text-slate-500">{item.gstIn || 'No GST'}</td>
-                    <td className="px-6 py-4 font-bold text-sm">₹{Math.abs(item.balance || 0).toLocaleString()}</td>
+                    <td className="px-6 py-4 font-bold text-sm text-right text-slate-700">₹{(item.creditLimit || item.credit_limit || 50000).toLocaleString()}</td>
+                    <td className="px-6 py-4 font-bold text-sm text-right">₹{Math.abs(item.balance || 0).toLocaleString()}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 text-slate-400">
                         <button 
@@ -524,13 +580,18 @@ export default function Masters() {
             ))}
             {data.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                  No {activeTab}s found matching your search.
+                <td colSpan={8} className="px-6 py-16 text-center">
+                  <div className="flex flex-col items-center gap-3 text-slate-400">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl">🔍</div>
+                    <p className="font-bold text-sm">No {activeTab}s found.</p>
+                    <p className="text-xs">Try a different search term or add a new {activeTab}.</p>
+                  </div>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        <PaginationBar />
       </div>
     );
   };
@@ -1021,37 +1082,40 @@ export default function Masters() {
               <div className="p-8 border-b border-slate-100 flex items-center justify-between text-slate-900 bg-white">
                 <h3 className="text-xl font-black">{(t[activeTab] || activeTab).toUpperCase()} Details</h3>
                 <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer">
-                  x
+                  ✕
                 </button>
               </div>
               <div className="p-8 space-y-6 bg-white">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-2xl">
+                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-blue-200">
                     {viewingItem.name?.charAt(0)}
                   </div>
                   <div>
                     <h4 className="text-2xl font-black text-slate-900">{viewingItem.name}</h4>
-                    <p className="text-slate-500 font-mono text-xs">{viewingItem.id}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 bg-slate-100 rounded-lg text-xs font-mono font-bold text-slate-500">{viewingItem.id}</span>
                   </div>
                 </div>
 
-                <div className="space-y-4 bg-slate-50 p-6 rounded-[2rem]">
+                <div className="space-y-3 bg-slate-50 p-6 rounded-[2rem]">
                   {viewingItem.phone && (
                     <div className="flex items-center gap-3">
-                      <Phone size={16} className="text-slate-400" />
+                      <Phone size={16} className="text-slate-400 shrink-0" />
                       <span className="text-sm font-bold text-slate-700">{viewingItem.phone}</span>
                     </div>
                   )}
                   {viewingItem.email && (
                     <div className="flex items-center gap-3">
-                      <Mail size={16} className="text-slate-400" />
+                      <Mail size={16} className="text-slate-400 shrink-0" />
                       <span className="text-sm font-bold text-slate-700">{viewingItem.email}</span>
                     </div>
                   )}
-                  {viewingItem.address && (
+                  {(viewingItem.city || viewingItem.address) && (
                     <div className="flex items-start gap-3">
-                      <MapPin size={16} className="text-slate-400 mt-1" />
-                      <span className="text-sm font-bold text-slate-700">{viewingItem.address}</span>
+                      <MapPin size={16} className="text-slate-400 mt-0.5 shrink-0" />
+                      <div>
+                        {viewingItem.address && <p className="text-sm font-bold text-slate-700">{viewingItem.address}</p>}
+                        {viewingItem.city && <p className="text-xs font-bold text-slate-500 mt-0.5">{viewingItem.city}{viewingItem.state ? `, ${viewingItem.state}` : ''}</p>}
+                      </div>
                     </div>
                   )}
                   {viewingItem.gstIn && (
@@ -1060,31 +1124,77 @@ export default function Masters() {
                       <span className="text-sm font-mono font-bold text-slate-700">{viewingItem.gstIn}</span>
                     </div>
                   )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
                   {(viewingItem.balance !== undefined) && (
-                    <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
-                      <IndianRupee size={16} className="text-blue-600" />
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Outstanding Balance</p>
-                        <p className="text-lg font-black text-blue-600 italic">₹{viewingItem.balance?.toLocaleString()}</p>
-                      </div>
+                    <div className="bg-blue-50 rounded-2xl p-4">
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Outstanding Balance</p>
+                      <p className="text-xl font-black text-blue-700 mt-1">₹{(viewingItem.balance || 0).toLocaleString()}</p>
+                    </div>
+                  )}
+                  {(viewingItem.creditLimit !== undefined || viewingItem.credit_limit !== undefined) && (
+                    <div className="bg-emerald-50 rounded-2xl p-4">
+                      <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Credit / Price Limit</p>
+                      <p className="text-xl font-black text-emerald-700 mt-1">₹{(viewingItem.creditLimit || viewingItem.credit_limit || 50000).toLocaleString()}</p>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-3">
-                <button 
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2">
+                {(activeTab === 'customer' || activeTab === 'supplier') && (
+                  <button
+                    onClick={() => {
+                      const w = window.open('', '_blank');
+                      if (!w) return;
+                      w.document.write(`<html><head><title>${viewingItem.name} - Contact Card</title><style>
+                        body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 32px; color: #1e293b; max-width: 420px; margin: auto; }
+                        .logo { font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+                        .avatar { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+                        h1 { font-size: 22px; margin: 0 0 4px; font-weight: 900; }
+                        .id { font-size: 10px; font-family: monospace; color: #94a3b8; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+                        .row { display: flex; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 600; }
+                        .label { font-size: 9px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+                        .stat { flex: 1; background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-top: 12px; }
+                        .stat .val { font-size: 18px; font-weight: 900; color: #1e40af; }
+                        @media print { body { padding: 16px; } button { display: none; } }
+                      </style></head><body>
+                        <div class="logo">Billing360 — ${activeTab === 'customer' ? 'Customer' : 'Supplier'} Card</div>
+                        <div class="avatar">${viewingItem.name?.charAt(0)}</div>
+                        <h1>${viewingItem.name}</h1>
+                        <span class="id">${viewingItem.id}</span>
+                        <div style="margin-top: 16px;">
+                          ${viewingItem.phone ? `<div class="row"><span>📞</span><span>${viewingItem.phone}</span></div>` : ''}
+                          ${viewingItem.email ? `<div class="row"><span>✉️</span><span>${viewingItem.email}</span></div>` : ''}
+                          ${viewingItem.address ? `<div class="row"><span>📍</span><span>${viewingItem.address}${viewingItem.city ? ', ' + viewingItem.city : ''}${viewingItem.state ? ', ' + viewingItem.state : ''}</span></div>` : ''}
+                          ${viewingItem.gstIn ? `<div class="row"><span class="label">GSTIN</span><span style="font-family:monospace">${viewingItem.gstIn}</span></div>` : ''}
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                          <div class="stat"><div class="label">Outstanding Balance</div><div class="val">₹${(viewingItem.balance || 0).toLocaleString()}</div></div>
+                          <div class="stat"><div class="label">Credit / Price Limit</div><div class="val" style="color:#065f46">₹${(viewingItem.creditLimit || viewingItem.credit_limit || 50000).toLocaleString()}</div></div>
+                        </div>
+                        <script>window.onload = () => window.print();<\/script>
+                      </body></html>`);
+                      w.document.close();
+                    }}
+                    className="px-4 py-3 bg-white border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-colors text-xs tracking-widest cursor-pointer"
+                  >
+                    🖨️ Print Card
+                  </button>
+                )}
+                <button
                   onClick={() => {
                     setShowViewModal(false);
                     setEditingItem(viewingItem);
                     setShowEditModal(true);
                   }}
-                  className="flex-1 px-4 py-4 bg-white border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-colors uppercase tracking-widest text-xs italic shadow-sm cursor-pointer"
+                  className="flex-1 px-4 py-3 bg-white border border-slate-200 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-colors uppercase tracking-widest text-xs italic shadow-sm cursor-pointer"
                 >
-                  Edit Item
+                  ✏️ Edit
                 </button>
-                <button 
+                <button
                   onClick={() => setShowViewModal(false)}
-                  className="flex-1 px-4 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all uppercase tracking-widest text-xs italic shadow-lg shadow-blue-100 cursor-pointer"
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all uppercase tracking-widest text-xs italic shadow-lg shadow-blue-100 cursor-pointer"
                 >
                   Close
                 </button>

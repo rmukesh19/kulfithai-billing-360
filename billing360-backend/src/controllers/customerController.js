@@ -4,7 +4,7 @@ import { auditLog } from '../middleware/logger.js';
 export const getCustomers = async (req, res) => {
   const branchId = req.query.branchId || req.user?.branch_id || 'b360-branch-head';
   try {
-    const customers = await Customer.find({ branch_id: branchId, status: { $ne: 'deleted' } }).sort({ name: 1 }).lean();
+    const customers = await Customer.find({ branch_id: branchId, status: { $ne: 'deleted' } }).sort({ created_at: -1 }).lean();
     const formatted = customers.map(c => ({
       id: c._id,
       ...c,
@@ -22,14 +22,22 @@ export const getCustomers = async (req, res) => {
 export const addCustomer = async (req, res) => {
   const branchId = req.body.branchId || req.user?.branch_id || 'b360-branch-head';
   const userId = req.user?.id || 'b360-user-admin';
-  const { name, phone, email, address, city, state, gstin, gstIn, credit_limit, creditLimit, balance } = req.body;
+  const { id, name, phone, email, address, city, state, gstin, gstIn, credit_limit, creditLimit, balance } = req.body;
 
   if (!name || !phone) {
     return res.status(400).json({ success: false, message: 'Name and phone are required for customer.' });
   }
 
   try {
+    // Generate clean ID (e.g. CST001) if custom id not passed or if UUID passed
+    let finalId = id;
+    if (!finalId || (typeof finalId === 'string' && finalId.length > 15)) {
+      const count = await Customer.countDocuments({ branch_id: branchId });
+      finalId = `CST${String(count + 1).padStart(3, '0')}`;
+    }
+
     const customer = new Customer({
+      _id: finalId,
       branch_id: branchId,
       name,
       phone,
@@ -44,7 +52,7 @@ export const addCustomer = async (req, res) => {
     });
 
     await customer.save();
-    await auditLog(branchId, userId, 'CUSTOMER_CREATED', 'customers', `Customer ${name} created`);
+    await auditLog(branchId, userId, 'CUSTOMER_CREATED', 'customers', `Customer ${name} created with ID ${finalId}`);
 
     return res.status(201).json({
       success: true,

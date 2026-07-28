@@ -4,7 +4,7 @@ import { auditLog } from '../middleware/logger.js';
 export const getSuppliers = async (req, res) => {
   const branchId = req.query.branchId || req.user?.branch_id || 'b360-branch-head';
   try {
-    const suppliers = await Supplier.find({ branch_id: branchId, status: { $ne: 'deleted' } }).sort({ name: 1 }).lean();
+    const suppliers = await Supplier.find({ branch_id: branchId, status: { $ne: 'deleted' } }).sort({ created_at: -1 }).lean();
     const formatted = suppliers.map(s => ({
       id: s._id,
       ...s,
@@ -21,14 +21,22 @@ export const getSuppliers = async (req, res) => {
 export const addSupplier = async (req, res) => {
   const branchId = req.body.branchId || req.user?.branch_id || 'b360-branch-head';
   const userId = req.user?.id || 'b360-user-admin';
-  const { name, company_name, phone, email, address, city, state, gstin, gstIn, balance } = req.body;
+  const { id, name, company_name, phone, email, address, city, state, gstin, gstIn, balance } = req.body;
 
   if (!name || !phone) {
     return res.status(400).json({ success: false, message: 'Name and phone are required for supplier.' });
   }
 
   try {
+    // Generate clean ID (e.g. SUP001) if custom id not passed or if UUID passed
+    let finalId = id;
+    if (!finalId || (typeof finalId === 'string' && finalId.length > 15)) {
+      const count = await Supplier.countDocuments({ branch_id: branchId });
+      finalId = `SUP${String(count + 1).padStart(3, '0')}`;
+    }
+
     const supplier = new Supplier({
+      _id: finalId,
       branch_id: branchId,
       name,
       company_name: company_name || '',
@@ -43,7 +51,7 @@ export const addSupplier = async (req, res) => {
     });
 
     await supplier.save();
-    await auditLog(branchId, userId, 'SUPPLIER_CREATED', 'suppliers', `Supplier ${name} created`);
+    await auditLog(branchId, userId, 'SUPPLIER_CREATED', 'suppliers', `Supplier ${name} created with ID ${finalId}`);
 
     return res.status(201).json({
       success: true,
