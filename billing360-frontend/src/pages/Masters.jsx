@@ -660,20 +660,20 @@ export default function Masters() {
       {/* Add Modal */}
       <AnimatePresence>
         {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+              className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden my-auto"
             >
-              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white">
-                <h3 className="text-xl font-black text-slate-900">{activeTab === 'ledger' ? 'New Ledger' : `New ${t[activeTab] || activeTab}`}</h3>
-                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 cursor-pointer">
-                  x
+              <div className="px-6 sm:px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900">{activeTab === 'ledger' ? 'New Ledger' : `New ${t[activeTab] || activeTab}`}</h3>
+                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 cursor-pointer text-lg leading-none">
+                  ✕
                 </button>
               </div>
-              <form onSubmit={handleAdd} className="p-8 space-y-6 bg-white">
+              <form onSubmit={handleAdd} className="px-6 sm:px-8 py-6 space-y-5 bg-white overflow-y-auto max-h-[80vh]">
                 {activeTab === 'category' && (
                   <div className="space-y-2 col-span-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{t.category}</label>
@@ -690,46 +690,44 @@ export default function Masters() {
 
                 {(activeTab === 'customer' || activeTab === 'supplier') && (
                   <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 flex justify-between items-center">
-                          <span>{activeTab === 'customer' ? t.customer : t.supplier} ID</span>
-                          <button 
-                            type="button" 
-                            onClick={() => setNewContact({...newContact, id: generateNextMasterId(activeTab)})}
-                            className="text-[10px] text-blue-600 hover:underline cursor-pointer"
-                          >
-                            Auto
-                          </button>
-                        </label>
-                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.id} onChange={e => setNewContact({...newContact, id: e.target.value})} placeholder="e.g. CST001" />
+                    {/* Auto ID badge - not editable */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-slate-100 rounded-2xl">
+                      <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                        <span className="text-[10px] font-black">{activeTab === 'customer' ? 'C' : 'S'}</span>
                       </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          {activeTab === 'customer' ? 'Customer' : 'Supplier'} ID
+                        </p>
+                        <p className="text-xs font-black text-slate-500">Auto-generated (e.g. {activeTab === 'customer' ? 'CST001' : 'SUP001'})</p>
+                      </div>
+                      <span className="ml-auto text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg font-black">AUTO</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Name</label>
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Name *</label>
                         <input required type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.name} onChange={e => setNewContact({...newContact, name: e.target.value})} placeholder="Full Name / Firm Name" />
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{t.phone}</label>
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{t.phone} *</label>
                         <input required type="tel" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.phone} onChange={e => setNewContact({...newContact, phone: e.target.value})} placeholder="Mobile Number" />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
-                        <input type="email" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.email} onChange={e => setNewContact({...newContact, email: e.target.value})} placeholder="email@example.com" />
-                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
+                      <input type="email" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.email} onChange={e => setNewContact({...newContact, email: e.target.value})} placeholder="email@example.com" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Address / Street</label>
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.address} onChange={e => setNewContact({...newContact, address: e.target.value})} placeholder="Street, Area, Door No" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">City</label>
-                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.city} onChange={e => setNewContact({...newContact, city: e.target.value})} placeholder="e.g. Chennai, Mumbai, Bangkok" />
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.city} onChange={e => setNewContact({...newContact, city: e.target.value})} placeholder="e.g. Chennai, Mumbai" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">GSTIN</label>
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.gstIn} onChange={e => setNewContact({...newContact, gstIn: e.target.value})} placeholder="e.g. 27AAAAA1111A1Z1" />
@@ -739,7 +737,7 @@ export default function Masters() {
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.state} onChange={e => setNewContact({...newContact, state: e.target.value})} placeholder="e.g. Tamil Nadu" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Opening Balance</label>
                         <input 
@@ -874,20 +872,20 @@ export default function Masters() {
       {/* Edit Modal */}
       <AnimatePresence>
         {showEditModal && editingItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+              className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden my-auto"
             >
-              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white">
-                <h3 className="text-xl font-black text-slate-900">{t.edit} {activeTab === 'ledger' ? 'Ledger' : (t[activeTab] || activeTab)}</h3>
-                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 cursor-pointer">
-                  x
+              <div className="px-6 sm:px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900">{t.edit} {activeTab === 'ledger' ? 'Ledger' : (t[activeTab] || activeTab)}</h3>
+                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 cursor-pointer text-lg leading-none">
+                  ✕
                 </button>
               </div>
-              <form onSubmit={handleEdit} className="p-8 space-y-6 bg-white">
+              <form onSubmit={handleEdit} className="px-6 sm:px-8 py-6 space-y-5 bg-white overflow-y-auto max-h-[80vh]">
                 {activeTab === 'category' && (
                   <div className="space-y-2 col-span-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Category Name</label>
@@ -904,39 +902,42 @@ export default function Masters() {
 
                 {(activeTab === 'customer' || activeTab === 'supplier') && (
                   <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">
-                          {activeTab === 'customer' ? t.customer : t.supplier} ID
-                        </label>
-                        <input disabled type="text" className="w-full px-5 py-4 bg-slate-100 border-none rounded-2xl outline-none font-bold text-slate-500 cursor-not-allowed" value={editingItem.id} />
+                    {/* ID read-only badge */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-slate-100 rounded-2xl">
+                      <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                        <span className="text-[10px] font-black">{activeTab === 'customer' ? 'C' : 'S'}</span>
                       </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{activeTab === 'customer' ? 'Customer' : 'Supplier'} ID</p>
+                        <p className="text-xs font-black text-slate-700 font-mono">{editingItem.id}</p>
+                      </div>
+                      <span className="ml-auto text-[10px] bg-slate-200 text-slate-500 px-2 py-1 rounded-lg font-black">FIXED</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Name</label>
                         <input required type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.name} onChange={e => setEditingItem({...editingItem, name: e.target.value})} />
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Phone</label>
                         <input required type="tel" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.phone} onChange={e => setEditingItem({...editingItem, phone: e.target.value})} />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
-                        <input type="email" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.email || ''} onChange={e => setEditingItem({...editingItem, email: e.target.value})} />
-                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
+                      <input type="email" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.email || ''} onChange={e => setEditingItem({...editingItem, email: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Address / Street</label>
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.address || ''} onChange={e => setEditingItem({...editingItem, address: e.target.value})} placeholder="Street, Area, Door No" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">City</label>
-                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.city || ''} onChange={e => setEditingItem({...editingItem, city: e.target.value})} placeholder="e.g. Chennai, Mumbai, Bangkok" />
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.city || ''} onChange={e => setEditingItem({...editingItem, city: e.target.value})} placeholder="e.g. Chennai, Mumbai" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">GSTIN (Optional)</label>
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.gstIn || ''} onChange={e => setEditingItem({...editingItem, gstIn: e.target.value})} />
@@ -946,7 +947,7 @@ export default function Masters() {
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.state || ''} onChange={e => setEditingItem({...editingItem, state: e.target.value})} placeholder="e.g. Tamil Nadu" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Current Balance</label>
                         <input 
