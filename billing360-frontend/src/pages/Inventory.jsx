@@ -607,25 +607,25 @@ export default function Inventory() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Purchase Price</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.purchasePrice} onChange={e => setNewProduct({...newProduct, purchasePrice: parseFloat(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.purchasePrice === 0 || newProduct.purchasePrice === '0' ? '' : newProduct.purchasePrice} onChange={e => setNewProduct({...newProduct, purchasePrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Selling Price</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.sellingPrice} onChange={e => setNewProduct({...newProduct, sellingPrice: parseFloat(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.sellingPrice === 0 || newProduct.sellingPrice === '0' ? '' : newProduct.sellingPrice} onChange={e => setNewProduct({...newProduct, sellingPrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase text-blue-600">MRP (Max Price)</label>
-                    <input type="number" className="w-full px-4 py-2 border border-blue-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.mrp} onChange={e => setNewProduct({...newProduct, mrp: parseFloat(e.target.value) || 0})} />
+                    <input type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border border-blue-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.mrp === 0 || newProduct.mrp === '0' ? '' : newProduct.mrp} onChange={e => setNewProduct({...newProduct, mrp: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase text-indigo-600">Wholesale Price</label>
-                    <input type="number" className="w-full px-4 py-2 border border-indigo-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.wholesalePrice} onChange={e => setNewProduct({...newProduct, wholesalePrice: parseFloat(e.target.value) || 0})} />
+                    <input type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border border-indigo-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.wholesalePrice === 0 || newProduct.wholesalePrice === '0' ? '' : newProduct.wholesalePrice} onChange={e => setNewProduct({...newProduct, wholesalePrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Opening Stock</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.openingStock} onChange={e => setNewProduct({...newProduct, openingStock: parseInt(e.target.value) || 0, stock: parseInt(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={newProduct.openingStock === 0 || newProduct.openingStock === '0' ? '' : newProduct.openingStock} onChange={e => setNewProduct({...newProduct, openingStock: e.target.value === '' ? '' : parseInt(e.target.value) || 0, stock: e.target.value === '' ? '' : parseInt(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="col-span-2 space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Product Image</label>
@@ -970,25 +970,25 @@ export default function Inventory() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Purchase Price</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.purchasePrice} onChange={e => setEditingProduct({...editingProduct, purchasePrice: parseFloat(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.purchasePrice === 0 || editingProduct.purchasePrice === '0' ? '' : editingProduct.purchasePrice} onChange={e => setEditingProduct({...editingProduct, purchasePrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Selling Price</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.sellingPrice} onChange={e => setEditingProduct({...editingProduct, sellingPrice: parseFloat(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.sellingPrice === 0 || editingProduct.sellingPrice === '0' ? '' : editingProduct.sellingPrice} onChange={e => setEditingProduct({...editingProduct, sellingPrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase text-blue-600">MRP (Max Price)</label>
-                    <input type="number" className="w-full px-4 py-2 border border-blue-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.mrp || 0} onChange={e => setEditingProduct({...editingProduct, mrp: parseFloat(e.target.value) || 0})} />
+                    <input type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border border-blue-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.mrp === 0 || editingProduct.mrp === '0' ? '' : editingProduct.mrp || ''} onChange={e => setEditingProduct({...editingProduct, mrp: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase text-indigo-600">Wholesale Price</label>
-                    <input type="number" className="w-full px-4 py-2 border border-indigo-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.wholesalePrice || 0} onChange={e => setEditingProduct({...editingProduct, wholesalePrice: parseFloat(e.target.value) || 0})} />
+                    <input type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border border-indigo-100 rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.wholesalePrice === 0 || editingProduct.wholesalePrice === '0' ? '' : editingProduct.wholesalePrice || ''} onChange={e => setEditingProduct({...editingProduct, wholesalePrice: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Current Stock</label>
-                    <input required type="number" className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.stock} onChange={e => setEditingProduct({...editingProduct, stock: parseInt(e.target.value) || 0})} />
+                    <input required type="number" onFocus={e => e.target.select()} className="w-full px-4 py-2 border rounded-xl focus:border-blue-500 outline-none font-bold" value={editingProduct.stock === 0 || editingProduct.stock === '0' ? '' : editingProduct.stock} onChange={e => setEditingProduct({...editingProduct, stock: e.target.value === '' ? '' : parseInt(e.target.value) || 0})} placeholder="0" />
                   </div>
                   <div className="col-span-2 space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">Product Image</label>

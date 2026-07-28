@@ -112,7 +112,7 @@ export default function Masters() {
 
   // Form State
   const [newCategory, setNewCategory] = useState({ name: '' });
-  const [newContact, setNewContact] = useState({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '' });
+  const [newContact, setNewContact] = useState({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '', city: '', price: 0, creditLimit: 0 });
   const [newBranch, setNewBranch] = useState({ id: '', name: '', address: '', phone: '', gstIn: '' });
   const [newLedger, setNewLedger] = useState({ id: '', name: '', group: 'Expense', openingBalance: 0, currentBalance: 0 });
 
@@ -148,11 +148,11 @@ export default function Masters() {
       } else if (activeTab === 'customer') {
         const finalId = newContact.id || generateNextMasterId('customer');
         await CustomerService.addCustomer(userProfile.branchId, { ...newContact, id: finalId, branchId: userProfile.branchId });
-        setNewContact({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '' });
+        setNewContact({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '', city: '', price: 0, creditLimit: 0 });
       } else if (activeTab === 'supplier') {
         const finalId = newContact.id || generateNextMasterId('supplier');
         await SupplierService.addSupplier(userProfile.branchId, { ...newContact, id: finalId, branchId: userProfile.branchId });
-        setNewContact({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '' });
+        setNewContact({ id: '', name: '', phone: '', email: '', gstIn: '', balance: 0, category: '', state: '', city: '', price: 0, creditLimit: 0 });
       } else if (activeTab === 'branch') {
         const finalId = newBranch.id || generateNextMasterId('branch');
         await BranchService.addBranch({ ...newBranch, id: finalId });
@@ -266,6 +266,7 @@ export default function Masters() {
                 <>
                   <th className="px-6 py-4 italic text-xs tracking-normal font-black">{t.id}</th>
                   <th className="px-6 py-4">{activeTab === 'customer' ? t.customer_name : t.supplier_name}</th>
+                  <th className="px-6 py-4">City</th>
                   <th className="px-6 py-4">{t.gst_number}</th>
                   <th className="px-6 py-4 text-right">{t.balance}</th>
                   <th className="px-6 py-4 text-center">{t.actions}</th>
@@ -359,8 +360,9 @@ export default function Masters() {
                         </div>
                       </div>
                     </td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-700">{item.city || '-'}</td>
                     <td className="px-6 py-4 text-sm font-mono text-slate-500">{item.gstIn || 'No GST'}</td>
-                    <td className="px-6 py-4 font-bold text-sm">₹{Math.abs(item.balance || 0).toLocaleString()}</td>
+                    <td className="px-6 py-4 font-bold text-sm text-right">₹{Math.abs(item.balance || 0).toLocaleString()}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 text-slate-400">
                         <button 
@@ -645,14 +647,24 @@ export default function Masters() {
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.gstIn} onChange={e => setNewContact({...newContact, gstIn: e.target.value})} placeholder="e.g. 27AAAAA1111A1Z1" />
                       </div>
                       <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">City</label>
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.city} onChange={e => setNewContact({...newContact, city: e.target.value})} placeholder="e.g. Chennai" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">State / UT</label>
-                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.state} onChange={e => setNewContact({...newContact, state: e.target.value})} placeholder="e.g. Maharashtra" />
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.state} onChange={e => setNewContact({...newContact, state: e.target.value})} placeholder="e.g. Tamil Nadu" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Price / Credit Limit</label>
+                        <input type="number" onFocus={e => e.target.select()} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.creditLimit === 0 || newContact.creditLimit === '0' ? '' : newContact.creditLimit} onChange={e => setNewContact({...newContact, creditLimit: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="e.g. 50000" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Opening Balance</label>
-                        <input type="number" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.balance} onChange={e => setNewContact({...newContact, balance: parseFloat(e.target.value) || 0})} />
+                        <input type="number" onFocus={e => e.target.select()} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={newContact.balance === 0 || newContact.balance === '0' ? '' : newContact.balance} onChange={e => setNewContact({...newContact, balance: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                       </div>
                     </div>
                     {activeTab === 'supplier' && (
@@ -822,14 +834,24 @@ export default function Masters() {
                         <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.gstIn || ''} onChange={e => setEditingItem({...editingItem, gstIn: e.target.value})} />
                       </div>
                       <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">City</label>
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.city || ''} onChange={e => setEditingItem({...editingItem, city: e.target.value})} placeholder="e.g. Chennai" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">State / UT</label>
-                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.state || ''} onChange={e => setEditingItem({...editingItem, state: e.target.value})} placeholder="e.g. Maharashtra" />
+                        <input type="text" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.state || ''} onChange={e => setEditingItem({...editingItem, state: e.target.value})} placeholder="e.g. Tamil Nadu" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Price / Credit Limit</label>
+                        <input type="number" onFocus={e => e.target.select()} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.creditLimit === 0 || editingItem.creditLimit === '0' ? '' : editingItem.creditLimit || ''} onChange={e => setEditingItem({...editingItem, creditLimit: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="e.g. 50000" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Current Balance</label>
-                        <input type="number" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.balance} onChange={e => setEditingItem({...editingItem, balance: parseFloat(e.target.value) || 0})} />
+                        <input type="number" onFocus={e => e.target.select()} className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-100 font-bold" value={editingItem.balance === 0 || editingItem.balance === '0' ? '' : editingItem.balance || ''} onChange={e => setEditingItem({...editingItem, balance: e.target.value === '' ? '' : parseFloat(e.target.value) || 0})} placeholder="0" />
                       </div>
                     </div>
                     {activeTab === 'supplier' && (
@@ -975,10 +997,22 @@ export default function Masters() {
                       <span className="text-sm font-bold text-slate-700">{viewingItem.address}</span>
                     </div>
                   )}
+                  {viewingItem.city && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">City</span>
+                      <span className="text-sm font-bold text-slate-700">{viewingItem.city}</span>
+                    </div>
+                  )}
                   {viewingItem.gstIn && (
                     <div className="flex items-center gap-3">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">GSTIN</span>
                       <span className="text-sm font-mono font-bold text-slate-700">{viewingItem.gstIn}</span>
+                    </div>
+                  )}
+                  {viewingItem.creditLimit !== undefined && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Credit Limit</span>
+                      <span className="text-sm font-bold text-slate-700">₹{viewingItem.creditLimit?.toLocaleString()}</span>
                     </div>
                   )}
                   {(viewingItem.balance !== undefined) && (

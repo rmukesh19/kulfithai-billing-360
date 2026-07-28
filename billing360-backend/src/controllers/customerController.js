@@ -8,6 +8,8 @@ export const getCustomers = async (req, res) => {
     const formatted = customers.map(c => ({
       id: c._id,
       ...c,
+      gstIn: c.gstin || '',
+      creditLimit: c.credit_limit || 0,
       balance: c.current_balance || 0,
       dueAmount: c.due_amount || 0
     }));
@@ -20,7 +22,7 @@ export const getCustomers = async (req, res) => {
 export const addCustomer = async (req, res) => {
   const branchId = req.body.branchId || req.user?.branch_id || 'b360-branch-head';
   const userId = req.user?.id || 'b360-user-admin';
-  const { name, phone, email, address, gstin, credit_limit, balance } = req.body;
+  const { name, phone, email, address, city, state, gstin, gstIn, credit_limit, creditLimit, price, balance } = req.body;
 
   if (!name || !phone) {
     return res.status(400).json({ success: false, message: 'Name and phone are required for customer.' });
@@ -28,13 +30,17 @@ export const addCustomer = async (req, res) => {
 
   try {
     const customer = new Customer({
+      _id: req.body.id || undefined,
       branch_id: branchId,
       name,
       phone,
       email: email || '',
       address: address || '',
-      gstin: gstin || '',
-      credit_limit: credit_limit || 50000,
+      city: city || '',
+      state: state || '',
+      gstin: gstin || gstIn || '',
+      credit_limit: creditLimit !== undefined ? creditLimit : (credit_limit !== undefined ? credit_limit : 0),
+      price: price || 0,
       current_balance: balance || 0,
       status: 'active'
     });
@@ -45,7 +51,13 @@ export const addCustomer = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: 'Customer added successfully.',
-      data: { id: customer._id, ...customer.toObject(), balance: customer.current_balance }
+      data: {
+        id: customer._id,
+        ...customer.toObject(),
+        gstIn: customer.gstin,
+        creditLimit: customer.credit_limit,
+        balance: customer.current_balance
+      }
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -54,21 +66,38 @@ export const addCustomer = async (req, res) => {
 
 export const updateCustomer = async (req, res) => {
   const { id } = req.params;
-  const updateData = { ...req.body };
+  const body = req.body;
 
   try {
     const customer = await Customer.findById(id);
     if (!customer) return res.status(404).json({ success: false, message: 'Customer not found.' });
 
-    if (updateData.balance !== undefined) updateData.current_balance = updateData.balance;
+    if (body.name !== undefined) customer.name = body.name;
+    if (body.phone !== undefined) customer.phone = body.phone;
+    if (body.email !== undefined) customer.email = body.email;
+    if (body.address !== undefined) customer.address = body.address;
+    if (body.city !== undefined) customer.city = body.city;
+    if (body.state !== undefined) customer.state = body.state;
+    if (body.gstin !== undefined) customer.gstin = body.gstin;
+    if (body.gstIn !== undefined) customer.gstin = body.gstIn;
+    if (body.credit_limit !== undefined) customer.credit_limit = body.credit_limit;
+    if (body.creditLimit !== undefined) customer.credit_limit = body.creditLimit;
+    if (body.price !== undefined) customer.price = body.price;
+    if (body.balance !== undefined) customer.current_balance = body.balance;
+    if (body.current_balance !== undefined) customer.current_balance = body.current_balance;
 
-    Object.assign(customer, updateData);
     await customer.save();
 
     return res.json({
       success: true,
       message: 'Customer updated successfully.',
-      data: { id: customer._id, ...customer.toObject(), balance: customer.current_balance }
+      data: {
+        id: customer._id,
+        ...customer.toObject(),
+        gstIn: customer.gstin,
+        creditLimit: customer.credit_limit,
+        balance: customer.current_balance
+      }
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -80,10 +109,10 @@ export const deleteCustomer = async (req, res) => {
   try {
     const customer = await Customer.findById(id);
     if (customer) {
-      customer.status = 'inactive';
+      customer.status = 'deleted';
       await customer.save();
     }
-    return res.json({ success: true, message: 'Customer marked inactive.' });
+    return res.json({ success: true, message: 'Customer deleted.' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
