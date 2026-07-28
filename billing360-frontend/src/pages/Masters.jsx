@@ -277,7 +277,7 @@ export default function Masters() {
     const pageStart = (safePage - 1) * itemsPerPage;
     const data = allData.slice(pageStart, pageStart + itemsPerPage);
 
-    const PaginationBar = () => totalItems > itemsPerPage ? (
+    const PaginationBar = () => (
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/40">
         <div className="flex items-center gap-2 text-xs text-slate-500">
           <span>Show</span>
@@ -288,7 +288,9 @@ export default function Masters() {
           >
             {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
-          <span>of <strong>{totalItems}</strong> entries</span>
+          <span>
+            Showing <strong>{Math.min(pageStart + 1, totalItems)}–{Math.min(pageStart + itemsPerPage, totalItems)}</strong> of <strong>{totalItems}</strong> entries
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => setCurrentPage(1)} disabled={safePage === 1}
@@ -303,7 +305,7 @@ export default function Masters() {
             else page = safePage - 2 + i;
             return (
               <button key={page} onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${page === safePage ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-200'}`}>{page}</button>
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${page === safePage ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}>{page}</button>
             );
           })}
           <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
@@ -312,11 +314,11 @@ export default function Masters() {
             className="px-2 py-1 rounded-lg text-xs font-bold text-slate-400 hover:bg-slate-200 disabled:opacity-30 transition-all cursor-pointer">»</button>
         </div>
       </div>
-    ) : null;
+    );
 
     return (
-      <div className="overflow-x-auto rounded-b-[2rem] w-full">
-        <table className="w-full text-left min-w-[640px]">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-50/50 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
               {activeTab === 'category' && (
@@ -633,7 +635,7 @@ export default function Masters() {
         </button>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col w-full">
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row gap-6 items-center justify-between bg-white">
           <div className="flex-1">
              <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 italic">
